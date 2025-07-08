@@ -1,16 +1,29 @@
 import pygame
+import pygame_gui
 
 pygame.init()
 pygame.display.set_caption("chemymix")
 
+# === Get Screen Size (Responsive) ===
+info = pygame.display.Info()
+SCREEN_WIDTH, SCREEN_HEIGHT = info.current_w, info.current_h
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+
 background_color = (255, 255, 255)
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 800
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 running = True
 
-# === Load Recipes from TXT ===
+# === UI Manager ===
+ui_manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# === Close Button (top-right) ===
+close_button = pygame_gui.elements.UIButton(
+    relative_rect=pygame.Rect((SCREEN_WIDTH - 110, 10), (100, 40)),
+    text='Close',
+    manager=ui_manager
+)
+
+# === Load Recipes ===
 def load_recipes(filename):
     recipes = {}
     with open(filename, "r") as f:
@@ -26,7 +39,7 @@ def load_recipes(filename):
 
 RECIPES = load_recipes("recipes.txt")
 
-# === ELEMENT CLASS ===
+# === Element Class ===
 class Element:
     def __init__(self, name, x, y, w, h, image_path):
         self.name = name
@@ -53,18 +66,13 @@ class Element:
             self.dragging = False
         elif event.type == pygame.MOUSEMOTION and self.dragging:
             mx, my = event.pos
-            new_x = mx + self.offset_x
-            new_y = my + self.offset_y
-
-            # Keep inside screen bounds
-            new_x = max(0, min(SCREEN_WIDTH - self.width, new_x))
-            new_y = max(0, min(SCREEN_HEIGHT - self.height, new_y))
-
+            new_x = max(0, min(SCREEN_WIDTH - self.width, mx + self.offset_x))
+            new_y = max(0, min(SCREEN_HEIGHT - self.height, my + self.offset_y))
             self.rect.x = new_x
             self.rect.y = new_y
         return False
 
-# === MIXING EFFECT ===
+# === Effect Class ===
 class Effect:
     def __init__(self, x, y, duration=15, color=(255, 100, 100), radius=40):
         self.x = x
@@ -87,23 +95,32 @@ class Effect:
     def is_done(self):
         return self.counter >= self.duration
 
-# === ELEMENTS AND EFFECTS ===
+# === Init Elements & Effects ===
 elements = [
-    Element("kotilum", 200, 200, 100, 100, "assets/kotilum.png"),
-    Element("gejimtium", 400, 400, 100, 100, "assets/gejimtium.png")
+    Element("kotilum", SCREEN_WIDTH//2 - 200, SCREEN_HEIGHT//2, 100, 100, "assets/kotilum.png"),
+    Element("gejimtium", SCREEN_WIDTH//2 + 100, SCREEN_HEIGHT//2, 100, 100, "assets/gejimtium.png")
 ]
-
 effects = []
 
-# === MAIN LOOP ===
+# === Main Game Loop ===
 while running:
+    time_delta = clock.tick(60) / 1000.0
     screen.fill(background_color)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        # Dragging: only topmost element gets picked
+        # Handle pygame_gui events
+        ui_manager.process_events(event)
+
+        if event.type == pygame.USEREVENT:
+            if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == close_button:
+                    pygame.quit()
+                    exit()
+
+        # Handle dragging — only topmost
         if event.type == pygame.MOUSEBUTTONDOWN:
             for i in reversed(range(len(elements))):
                 if elements[i].handle_event(event):
@@ -114,7 +131,7 @@ while running:
             for e in elements:
                 e.handle_event(event)
 
-    # === MIXING CHECK ===
+    # === Mixing Check ===
     mixed = False
     for i in range(len(elements)):
         for j in range(i + 1, len(elements)):
@@ -123,41 +140,32 @@ while running:
                 combo = frozenset([a.name, b.name])
                 if combo in RECIPES:
                     result_name = RECIPES[combo]
-                    print(f"{a.name} + {b.name} => {result_name}")
-
-                    # Center position for new element & effect
                     mx = (a.rect.centerx + b.rect.centerx) // 2
                     my = (a.rect.centery + b.rect.centery) // 2
-
                     elements.remove(a)
                     elements.remove(b)
-
-                    new_elem = Element(
+                    elements.append(Element(
                         result_name,
                         mx - 50, my - 50, 100, 100,
                         f"assets/{result_name}.png"
-                    )
-                    elements.append(new_elem)
-
-                    # Add visual effect
+                    ))
                     effects.append(Effect(mx, my))
-
                     mixed = True
                     break
         if mixed:
             break
 
-    # === DRAW ELEMENTS ===
+    # === Draw All ===
     for e in elements:
         e.draw(screen)
 
-    # === DRAW & UPDATE EFFECTS ===
     for fx in effects:
         fx.update()
         fx.draw(screen)
     effects = [e for e in effects if not e.is_done()]
 
+    ui_manager.update(time_delta)
+    ui_manager.draw_ui(screen)
     pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
