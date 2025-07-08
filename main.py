@@ -9,7 +9,7 @@ from core.sidebar import SideBar
 # === Initialization ===
 pygame.init()
 pygame.mixer.init()  # Sound engine
-pygame.display.set_caption("Chemymix")
+pygame.display.set_caption("py_apple")
 
 info = pygame.display.Info()
 SCREEN_WIDTH, SCREEN_HEIGHT = info.current_w, info.current_h
