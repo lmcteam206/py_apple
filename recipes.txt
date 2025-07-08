@@ -4,3 +4,5 @@ Seferium + Core_gear =  kotilum
 kotilum + Seferium = gejimtium
 Core_gear + kotilum = Iron
 Core_gear + gejimtium = Iron
+gejimtium + gejimtium = Tedyy
+Tedyy + Iron = Cappuccino
