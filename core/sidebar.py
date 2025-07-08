@@ -4,7 +4,7 @@ class SideBar:
     def __init__(self, screen_w, screen_h, width=120):
         self.width = width
         self.rect = pygame.Rect(screen_w - width, 0, width, screen_h)
-        self.elements = []
+        self.elements = ["kotilum","gejimtium"]
         self.grid_size = 100
         self.padding = 10
         self.scroll_offset = 0
