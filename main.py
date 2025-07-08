@@ -27,6 +27,10 @@ close_button = pygame_gui.elements.UIButton(
 # === Sidebar ===
 sidebar = SideBar(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+# === Trash Area ===
+trash_rect = pygame.Rect(20, SCREEN_HEIGHT - 120, 100, 100)
+trash_icon = pygame.transform.scale(pygame.image.load("assets/trash.png"), (100, 100))
+
 # === Recipes ===
 RECIPES = load_recipes("recipes.txt")
 
@@ -47,23 +51,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        # UI events
         ui_manager.process_events(event)
 
-        # Handle close button
+        # Close button logic
         if event.type == pygame.USEREVENT and event.user_type == pygame_gui.UI_BUTTON_PRESSED:
             if event.ui_element == close_button:
                 pygame.quit()
                 exit()
 
+        # Scroll wheel for sidebar
+        if event.type == pygame.MOUSEWHEEL:
+            sidebar.handle_scroll(event)
+
+        # Mouse click
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Check if user clicked on sidebar to spawn an element
             element_name = sidebar.handle_click(event.pos)
             if element_name:
                 elements.append(Element(
                     element_name, 100, 100, 100, 100, f"assets/{element_name}.png"
                 ))
             else:
-                # Handle dragging only topmost element
+                # Dragging elements
                 for i in reversed(range(len(elements))):
                     if elements[i].handle_event(event, SCREEN_WIDTH, SCREEN_HEIGHT):
                         clicked = elements.pop(i)
@@ -72,6 +81,10 @@ while running:
         else:
             for e in elements:
                 e.handle_event(event, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+        # On mouse release, check for trash drop
+        if event.type == pygame.MOUSEBUTTONUP:
+            elements = [e for e in elements if not trash_rect.colliderect(e.rect)]
 
     # === Mixing Logic ===
     mixed = False
@@ -105,10 +118,12 @@ while running:
         fx.draw(screen)
     effects = [fx for fx in effects if not fx.is_done()]
 
-    # Draw Sidebar
+    # Sidebar and Trash
     sidebar.draw(screen)
+    screen.blit(trash_icon, trash_rect.topleft)
+    pygame.draw.rect(screen, (200, 0, 0), trash_rect, 2)
 
-    # Draw UI
+    # UI
     ui_manager.update(time_delta)
     ui_manager.draw_ui(screen)
     pygame.display.flip()
