@@ -15,12 +15,32 @@ class Element:
         self.rect = pygame.Rect(x, y, width, height)
         original_image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(original_image, (width, height))
+        
+        # Dragging state
+        self.dragging = False
+        self.offset_x = 0
+        self.offset_y = 0
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
 
-    def is_clicked(self, pos):
-        return self.rect.collidepoint(pos)
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.dragging = True
+                mouse_x, mouse_y = event.pos
+                self.offset_x = self.rect.x - mouse_x
+                self.offset_y = self.rect.y - mouse_y
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.dragging = False
+
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                mouse_x, mouse_y = event.pos
+                self.rect.x = mouse_x + self.offset_x
+                self.rect.y = mouse_y + self.offset_y
+
     
 element = Element(200, 150, 100, 100, "assets/kotilum.png") 
 
@@ -28,6 +48,7 @@ while running:
     screen.fill(background_color)
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
+        element.handle_event(event)
         if event.type == pygame.QUIT:
             running = False
 
