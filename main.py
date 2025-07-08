@@ -3,6 +3,7 @@ import pygame
 pygame.init()
 pygame.display.set_caption("chemymix")
 
+background_color = (255,255,255)
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
@@ -21,9 +22,10 @@ class Element:
     def is_clicked(self, pos):
         return self.rect.collidepoint(pos)
     
-element = Element(200, 150, 100, 100, "assets/box.png") 
+element = Element(200, 150, 100, 100, "assets/kotilum.png") 
 
 while running:
+    screen.fill(background_color)
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
