@@ -89,8 +89,8 @@ class Effect:
 
 # === ELEMENTS AND EFFECTS ===
 elements = [
-    Element("kotilum", 200, 150, 100, 100, "assets/kotilum.png"),
-    Element("gejimtium", 400, 180, 100, 100, "assets/gejimtium.png")
+    Element("kotilum", 200, 200, 100, 100, "assets/kotilum.png"),
+    Element("gejimtium", 400, 400, 100, 100, "assets/gejimtium.png")
 ]
 
 effects = []
