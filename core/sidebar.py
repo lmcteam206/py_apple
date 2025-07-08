@@ -26,7 +26,7 @@ class SideBar:
                 image = pygame.image.load(f"assets/{name}.png").convert_alpha()
                 image = pygame.transform.scale(image, (self.grid_size, self.grid_size))
                 screen.blit(image, (self.rect.x + 10, y))
-            except:
+            except Exception:
                 continue
 
         screen.set_clip(clip)
