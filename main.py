@@ -44,14 +44,19 @@ class Element:
     
 element = Element(200, 150, 100, 100, "assets/kotilum.png") 
 
+elements = [
+
+]
+
 while running:
     screen.fill(background_color)
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
-        element.handle_event(event)
+        for e in element:
+            e.handle_event(event)
         if event.type == pygame.QUIT:
             running = False
-
+    for e in elements
     element.draw(screen)
 
     pygame.display.flip()
