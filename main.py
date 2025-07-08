@@ -12,9 +12,8 @@ running = True
 
 # === MIXING RECIPES ===
 RECIPES = {
-    frozenset(["kotilum", "gejimtium"]): "explodium",
-    frozenset(["kotilum", "Core_gear"]): "metal_fuse"
-    # Add more recipes here
+    frozenset(["kotilum", "gejimtium"]): "Core_gear",
+
 }
 
 # === ELEMENT CLASS ===
@@ -49,8 +48,7 @@ class Element:
 # === INITIAL ELEMENTS ===
 elements = [
     Element("kotilum", 200, 150, 100, 100, "assets/kotilum.png"),
-    Element("gejimtium", 250, 180, 100, 100, "assets/gejimtium.png"),
-    Element("Core_gear", 300, 210, 100, 100, "assets/Core_gear.png")
+    Element("gejimtium", 400, 180, 100, 100, "assets/gejimtium.png"),
 ]
 
 # === MAIN LOOP ===
